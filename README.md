@@ -13,9 +13,9 @@ koje koristi Voyage AI u članku o `voyage-law-2` (2024). Svi datasetovi su MTEB
 | legal_summarization | 438 | 284 | en | 44.9k / 5.1k | **preveden** (29. 10. 2026) — čeka provjeru kvaliteta |
 | legalbench_consumer_contracts_qa | 154 | 396 | en | 68.4k / 6.2k | **preveden** (29. 10. 2026) — čeka provjeru kvaliteta |
 | legalbench_corporate_lobbying | 319 | 340 | en | 53.6k / 9.2k | **preveden** (29. 10. 2026) — čeka provjeru kvaliteta |
-| LegalQuAD | 200 | 200 | de | 523k / 1.9k | u prevodu (šesti) — režim: Sonnet 5.5, samo prevod, bez recenzije |
-| LeCaRDv2 | 3795 | 159 | zh | 27,4M znakova / 0,5M znakova | čeka odluku o obimu |
-| GerDaLIR | 131.445 | 12.298 | de | ~970 MB parquet / 12,6M znakova | čeka odluku o obimu |
+| LegalQuAD | 200 | 200 | de | 523k / 1.9k | **preveden** (30. 10. 2026) — Sonnet 5.5, samo prevod, bez recenzije, ispravki i audita; automatska samoprovjera prošla (`scripts/check_batch.py`) |
+| LeCaRDv2 | 3795 | 159 | zh | 27,4M znakova / 0,5M znakova | ne radi se |
+| GerDaLIR | 131.445 | 12.298 | de | ~970 MB parquet / 12,6M znakova | ne radi se |
 
 ## Struktura
 - `data/raw/<dataset>/` — originalni fajlovi sa HuggingFace (nepromijenjeni).
@@ -74,6 +74,13 @@ koje koristi Voyage AI u članku o `voyage-law-2` (2024). Svi datasetovi su MTEB
   Dijeljenje na dijelove ide po granicama rečenica (`make_chunks.py`, polje `sep_before` čuva tačan separator), pa
   `assemble.py` rekonstruiše dokument znak po znak. Registar i glosar: dio 10 vodiča.
 - Upiti: 200 kratkih pitanja; kontekst prevodiocu je prvih 1.500 znakova presude na koju se pitanje odnosi.
+- Preveden u režimu „samo prevod“ (Sonnet 5.5, effort high, jedan agent po batchu), bez recenzije, ispravki i audita;
+  svaki batch je prošao `scripts/check_batch.py` (ID-ovi, novi redovi, brojevi, odnos dužine, ekavica/hrvatizmi, „nijesu“).
+  Poznata odstupanja od provjere brojeva su greške u izvoru: godina slijepljena s brojem pasusa/fusnote
+  (`corpus_058`: „20155“, `corpus_176`: „199644“, „199954“); prevod ih vjerno razdvaja. Engleski citati patenata u presudama
+  i naslovi njemačke literature u fusnotama ostaju doslovno. „Rs. C-…“ (Rechtssache) → „predmet C-…“.
+- `manifest.json` ima apsolutne putanje sa originalnog računara; pri ponovnom sklapanju (`assemble.py`) ispravite putanje u
+  privremenoj kopiji manifesta (korijen `.../rag-benchmark-mne/` zamijeniti stvarnim).
 
 ### Obim preostalih datasetova (izmjereno 30. 10. 2026)
 | dataset | korpus | upiti | procjena posla u odnosu na AILA_casedocs (354 batcheva, ~1.060 agenata) |
